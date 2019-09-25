@@ -4,7 +4,7 @@ export default class Test {
     this.onAnswer = onAnswer
     this.config = config
     this.vars = {}
-    this.fb = new FeedBack(divId)
+    this.fb = new FeedBack(divId, this.config.feedback.params)
     this.givenFb = []
     window.onload = this.buildDom()
   }

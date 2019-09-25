@@ -20,7 +20,8 @@ class FeedBack {
     this.eid = eid
     let defaultParams = {
       pos: "t",
-      dismissable: true
+      dismissable: true,
+      multi: true
     }
     if (params.pos && !pos.includes(params.pos))
       console.error(
@@ -56,7 +57,11 @@ class FeedBack {
       console.log(btn)
       btn.onclick = function(event) {
         event.target.parentElement.style.display = "none"
-        console.log(event)
+      }
+    }
+    if (!this.params.multi) {
+      while (this.feedback.firstChild) {
+        this.feedback.removeChild(this.feedback.firstChild)
       }
     }
     this.feedback.append(fb)

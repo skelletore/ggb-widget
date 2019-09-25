@@ -36,7 +36,8 @@
   color: #000000;
   /* opacity: 0.26; */
   font-weight: bold;
-  /* float: right; */
+  float: right;
+  text-align: center;
   font-size: 20px;
   /* line-height: 22px; */
   cursor: pointer;

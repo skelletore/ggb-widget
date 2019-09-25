@@ -20,6 +20,11 @@ let divElement = document.getElementById("widget")
 // Config for widget
 let config = {
   feedback: {
+    params: {
+      pos: "t",
+      dismissable: false,
+      multi: true
+    },
     default: "Kan ikke se hva jeg kan si annet enn det som er sagt før...",
     fb: [
       [
