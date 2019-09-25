@@ -46,7 +46,7 @@ class FeedBack {
     let btn
     let fb = document.createElement("div")
     fb.innerHTML = msg
-    fb.classList.add("feedback", "content")
+    fb.classList.add( "content")
     if (cls) fb.classList.add(cls)
     if (this.params.dismissable) {
       // add dismiss button
