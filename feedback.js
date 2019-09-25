@@ -9,55 +9,56 @@
  *
  * This class comes with a style sheet (feedback.css)
  */
-const pos = ['t', 'b', 'l', 'r']
+const pos = ["t", "b", "l", "r"]
 
 class FeedBack {
-	constructor(eid, params = {}) {
-		if (!eid) {
-			console.error('An element ID is required')
-			return void 0
-		}
-		this.eid = eid
-		let defaultParams = {
-			pos: 't',
-			dismissable: true
-		}
-		if (params.pos && !pos.includes(params.pos))
-			console.error(
-				'position must be on of the following: ',
-				pos.join(', '),
-				'\ncontinuing with default position!'
-			)
-		this.params = { ...defaultParams, ...params }
-		window.onloadend = this.init()
-	}
-	init() {
-		this.feedback = document.createElement('div')
-		this.feedback.classList.add('feedback')
+  constructor(eid, params = {}) {
+    if (!eid) {
+      console.error("An element ID is required")
+      return void 0
+    }
+    this.eid = eid
+    let defaultParams = {
+      pos: "t",
+      dismissable: true
+    }
+    if (params.pos && !pos.includes(params.pos))
+      console.error(
+        "position must be on of the following: ",
+        pos.join(", "),
+        "\ncontinuing with default position!"
+      )
+    this.params = { ...defaultParams, ...params }
+    window.onloadend = this.init()
+  }
+  init() {
+    this.feedback = document.createElement("div")
+    this.feedback.classList.add("feedback")
 
-		if (this.params.pos == 't')
-			document.getElementById(this.eid).prepend(this.feedback)
-		else if (this.params.pos == 'b')
-			document.getElementById(this.eid).append(this.feedback)
-	}
+    if (this.params.pos == "t")
+      document.getElementById(this.eid).prepend(this.feedback)
+    else if (this.params.pos == "b")
+      document.getElementById(this.eid).append(this.feedback)
+  }
 
-	push(msg, cls = null) {
-		let btn
-		let fb = document.createElement('div')
-		fb.innerHTML = msg
-		fb.classList.add('feedback', 'content')
-		if (cls) fb.classList.add(cls)
-		if (this.params.dismissable) {
-			// add dismiss button
-			btn = document.createElement('button')
-			btn.classList.add('dismiss')
-			btn.innerHTML = 'X'
-			fb.append(btn)
-			console.log(btn)
-			btn.onclick = function() {
-				console.log(this.getParent)
-			}
-		}
-		this.feedback.append(fb)
-	}
+  push(msg, cls = null) {
+    let btn
+    let fb = document.createElement("div")
+    fb.innerHTML = msg
+    fb.classList.add("feedback", "content")
+    if (cls) fb.classList.add(cls)
+    if (this.params.dismissable) {
+      // add dismiss button
+      btn = document.createElement("button")
+      btn.classList.add("dismiss")
+      btn.innerHTML = "X"
+      fb.append(btn)
+      console.log(btn)
+      btn.onclick = function(event) {
+        event.target.parentElement.style.display = "none"
+        console.log(event)
+      }
+    }
+    this.feedback.append(fb)
+  }
 }

@@ -19,18 +19,39 @@ let divElement = document.getElementById("widget")
 
 // Config for widget
 let config = {
-  condition: {
-    op: "and",
-    a: {
-      op: "eq",
-      a: 3,
-      b: "a"
-    },
-    b: {
-      op: "gt",
-      a: "b",
-      b: 7
-    }
+  feedback: {
+    default: "Kan ikke se hva jeg kan si annet enn det som er sagt før...",
+    fb: [
+      [
+        "Det er to betingelser som må være møtt samtidig...",
+        "TEST1B",
+        "<b>TEST1B</b>"
+      ],
+      [
+        "Hva kan du si om forholdet mellom <i>a</i> og <i>b</i>?",
+        "Hvorfor er <i>a</i> mindre enn <i>b</i>?"
+      ]
+    ],
+    condition: [
+      {
+        op: "and",
+        a: {
+          op: "eq",
+          a: 3,
+          b: "_a"
+        },
+        b: {
+          op: "gt",
+          a: "_b",
+          b: 7
+        }
+      },
+      {
+        op: "leq",
+        a: "_a",
+        b: "_b"
+      }
+    ]
   }
 }
 

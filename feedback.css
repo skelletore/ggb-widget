@@ -1,56 +1,50 @@
 .feedback {
-	padding: 10px;
-	background-color: #77b3d1 !important;
-	border-color: #77b3d1 !important;
-	font-size: 16px;
-	margin-bottom: 10px;
-	border-radius: 4px;
-	color: white;
-	display: flex;
-	align-items: center;
-	width: 100%;
+  padding: 10px;
+  background-color: #77b3d1 !important;
+  border-color: #77b3d1 !important;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  color: white;
+  /* display: flex; */
+  /* align-items: center; */
+  /* width: 100%; */
 }
 
 .content {
-	/* position: absolute; */
-	/* width: 35%; */
-	height: 100%;
-	margin: 5px;
-	/* left: 12%; */
-	background: linear-gradient(to bottom right, #b0db7d 40%, #99dbb4 100%);
-	border-radius: 10px;
-	box-shadow: 5px 5px 20px rgba(203, 205, 211, 0.1);
-	perspective: 40px;
+  /* position: absolute; */
+  /* width: 35%; */
+  height: 100%;
+  margin: 5px;
+  /* left: 12%; */
+  background: linear-gradient(to bottom right, #b0db7d 40%, #99dbb4 100%);
+  border-radius: 10px;
+  box-shadow: 5px 5px 20px rgba(203, 205, 211, 0.1);
+  perspective: 40px;
 }
 .content.error {
-	background: linear-gradient(to bottom left, #ef8d9c 40%, #ffc39e 100%);
+  background: linear-gradient(to bottom left, #ef8d9c 40%, #ffc39e 100%);
 }
 .content.sucess {
-	background-color: #4caf50 !important;
-	border-color: #4caf50 !important;
-}
-
-.feedback > .border {
-	opacity: 0.26;
-	color: #ffffff;
+  background-color: #4caf50 !important;
+  border-color: #4caf50 !important;
 }
 
 .feedback > .dismiss {
-	margin-left: 15px;
-	background-color: #ffffff !important;
-	color: #000000;
-	text-emphasis-style: filled;
-	/* opacity: 0.26; */
-	/* font-weight: bold; */
-	/* float: right; */
-	font-size: 20px;
-	/* line-height: 22px; */
-	cursor: pointer;
-	/* transition: 0.3s; */
-	border: none;
-	border-radius: 50%;
+  margin-left: 15px;
+  background-color: #ffffff !important;
+  color: #000000;
+  /* opacity: 0.26; */
+  font-weight: bold;
+  /* float: right; */
+  font-size: 20px;
+  /* line-height: 22px; */
+  cursor: pointer;
+  /* transition: 0.3s; */
+  border: none;
+  border-radius: 50%;
 }
 
 .feedback > .dismiss:hover {
-	color: black;
+  color: black;
 }

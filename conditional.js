@@ -48,8 +48,8 @@ const check = (input, vars = null) => {
     b = input.b
   if (typeof a === "object") a = check(a, vars)
   if (typeof b === "object") b = check(b, vars)
-  if (typeof a === "string") a = vars[a]
-  if (typeof b === "string") b = vars[b]
+  if (typeof a === "string" && a.charAt() == "_") a = vars[a.slice(1)]
+  if (typeof b === "string" && b.charAt() == "_") b = vars[b.slice(1)]
   // Need to check if argument is a variable or a constant!
 
   return op(a, b)
