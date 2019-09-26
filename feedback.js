@@ -35,18 +35,21 @@ class FeedBack {
   init() {
     this.feedback = document.createElement("div")
     this.feedback.classList.add("feedback")
-
-    if (this.params.pos == "t")
+    let pos = this.params.pos
+    if (pos == "t" || pos == "r")
       document.getElementById(this.eid).prepend(this.feedback)
-    else if (this.params.pos == "b")
+    else if (pos == "b" || pos == "l")
       document.getElementById(this.eid).append(this.feedback)
+    if (pos == "t" || pos == "b")
+      document.getElementById(this.eid).classList.add("feedback-column")
+    else document.getElementById(this.eid).classList.add("feedback-row")
   }
 
   push(msg, cls = null) {
     let btn
     let fb = document.createElement("div")
     fb.innerHTML = msg
-    fb.classList.add( "content")
+    fb.classList.add("content")
     if (cls) fb.classList.add(cls)
     if (this.params.dismissable) {
       // add dismiss button
