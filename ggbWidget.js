@@ -4,7 +4,7 @@ export default class GgbWidget {
 	constructor(divElementId, config, answer = null, onAnswer, options) {
 		this.divElementId = divElementId
 		this.ggbId = `${this.divElementId}-ggb-container`
-		this.fbId = `${this.divElementId}-fb`
+		// this.fbId = `${this.divElementId}-fb`
 		// default values
 		let parameters = {
 			width: document.getElementById(divElementId).clientWidth || 600,
@@ -24,15 +24,19 @@ export default class GgbWidget {
 			showToolBarHelp: false,
 			errorDialogsActive: true,
 			useBrowserForJS: false,
-			autoHeight: true
+			autoHeight: true,
+			language: 'nb'
 			// showLogging: 'true' //only for testing/debugging
 		}
 		// overwrite default values with values passed down from config
 		// this.config.parameters = { ...parameters, ...config.ggbApplet }
 		this.config = {
-			parameters: { ...parameters, ...config.ggbApplet },
-			feedback: config.feedback || []
+			ggbApplet: { ...parameters, ...config.ggbApplet },
+			feedback: config.feedback || [],
+			vars: config.vars || []
 		}
+
+		this.vars = {}
 		// console.log(this.config.parameters)
 
 		this.answer = answer || ''
@@ -42,56 +46,36 @@ export default class GgbWidget {
 		}
 
 		this.buildDOM()
-		this.config.parameters.appletOnLoad = this.appletOnLoad
+		this.config.ggbApplet.appletOnLoad = this.appletOnLoad
 		window.onload = this.runscript()
+		this.fb = new FeedBack(
+			divElementId,
+			this.config.feedback.params,
+			config.feedback.condition,
+			config.feedback.fb,
+			config.feedback.default,
+			this.vars,
+			this.answer
+		)
 	}
 
 	appletOnLoad = api => {
-		const addListener = objName => {
-			// console.log(this.answer)
-			this.answer += `add:  ${objName}  \n`
-			printConstructionState()
-		}
-
-		const removeListener = objName => {
-			this.answer += `remove: ${objName} \n`
-			printConstructionState()
-		}
-
-		const renameListener = (oldObjName, newObjName) => {
-			this.answer += `rename: ${objName} \n`
-			printConstructionState()
-		}
-
-		const updateListener = objName => {
-			let strVal = api.getValueString(objName)
-			this.answer += `update: ${strVal} \n`
-			this.putAns()
-		}
-
-		const clearListener = () => {
-			this.answer += `===CLEAR ANSWER=== \n`
-			this.putAns()
-		}
-
-		const printConstructionState = () => {
-			var objNumber = api.getObjectNumber()
-			var strState = 'Number of objects: ' + objNumber
-			for (let i = 0; i < objNumber; i++) {
-				let strName = api.getObjectName(i)
-				let strType = api.getObjectType(strName)
-				let strCommand = api.getCommandString(strName)
-				strState += '\n' + strType + ' ' + strName + ', ' + strCommand
+		for (let o of this.config.vars) {
+			if (o.type == 'point') {
+				o.listener = objName => {
+					let x = api.getXcoord(objName).toFixed(4)
+					let y = api.getYcoord(objName).toFixed(4)
+					this.vars[o.name + 'x'] = x
+					this.vars[o.name + 'y'] = y
+					// console.log(this.vars)
+					this.answer += `Point ${o.name} updated to (${x},${y})\n`
+					this.putAns()
+				}
 			}
-			this.answer += strState + '\n'
-			this.putAns()
+			api.registerObjectUpdateListener(o.name, debounced(250, o.listener))
+			//initialize variables
+			o.listener(o.name)
 		}
-
-		api.registerAddListener(addListener)
-		api.registerRemoveListener(removeListener)
-		api.registerRenameListener(renameListener)
-		api.registerClearListener(clearListener)
-		api.registerUpdateListener(updateListener)
 	}
 
 	currentTimeMs() {
@@ -116,7 +100,7 @@ export default class GgbWidget {
 	}
 
 	runscript() {
-		this.applet = new GGBApplet(this.config.parameters, '5.0', this.ggbId)
+		this.applet = new GGBApplet(this.config.ggbApplet, '5.0', this.ggbId)
 		this.applet.setPreviewImage(
 			'data:image/gif;base64,R0lGODlhAQABAAAAADs=',
 			'https://www.geogebra.org/images/GeoGebra_loading.png',
@@ -181,5 +165,18 @@ var ggbWidget = {
 		"strokeWidths": [7, 14, 21, 35],
 		"clear": "true",
 		"undo": "true"
+	}
+}
+
+function debounced(delay, fn) {
+	let timerId
+	return function(...args) {
+		if (timerId) {
+			clearTimeout(timerId)
+		}
+		timerId = setTimeout(() => {
+			fn(...args)
+			timerId = null
+		}, delay)
 	}
 }

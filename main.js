@@ -9,7 +9,7 @@ let answerEl = document.getElementById('answer')
 let ans
 let onAnswer = answer => {
 	ans = answer
-	console.log(answer)
+	// console.log(answer)
 	// let answerJSON = JSON.stringify(answer, null, 2)
 	// answerEl.innerText = answerJSON
 	answerEl.value = answer
@@ -22,9 +22,12 @@ let b64 =
 // Config for widget
 let config = {
 	ggbApplet: {
-		gbbBase64: b64,
+		ggbBase64: b64,
+		showMenuBar: false,
 		showToolBar: false
 	},
+	vars: [{ name: 'A', type: 'point' }, { name: 'B', type: 'point' }],
+	// ggbApplet: par,
 	feedback: {
 		params: {
 			pos: 't',
@@ -59,8 +62,8 @@ let config = {
 			},
 			{
 				op: 'leq',
-				a: '_a',
-				b: '_b'
+				a: '_Ax',
+				b: '_Bx'
 			}
 		]
 	}
