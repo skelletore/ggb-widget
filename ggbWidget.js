@@ -57,7 +57,7 @@ export default class GgbWidget {
       config.feedback.fb,
       config.feedback.default,
       this.vars,
-      this.answer
+      this.setFb
     )
   }
 
@@ -83,8 +83,11 @@ export default class GgbWidget {
   currentTimeMs() {
     return this.startTime ? new Date() - this.startTime : 0
   }
-  // kun for å sette svar/state til widget dersom svar blir gitt fra server
-  setAns() {}
+  // CB sendt til feedback klassen, legger til feedback til svar objektet
+  setFb = msg => {
+    this.answer += msg
+    this.putAns()
+  }
 
   putAns() {
     this.onAnswer(this.answer)

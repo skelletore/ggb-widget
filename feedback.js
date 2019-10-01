@@ -45,7 +45,7 @@ class FeedBack {
     this.defaultFb = def
     this.givenFb = []
     this.vars = vars
-    this.ans = ans
+    this.feedbackCB = ans
     window.onloadend = this.init()
   }
   init() {
@@ -57,6 +57,7 @@ class FeedBack {
     heading.classList.add("feedback-heading")
     heading.innerHTML = "<em>Feedback</em>"
     let btn = document.createElement("button")
+    btn.classList.add("feedback-button")
     btn.innerHTML = "check"
     btn.onclick = this.checkAns
     this.container.append(heading, btn, this.feedback)
@@ -94,18 +95,26 @@ class FeedBack {
       let floor = Math.floor
       let fb = fbs[floor(rand * fbs.length + 1) - 1]
       this.givenFb.push(fb)
-      this.push(fb, "sucess")
+      this.push(fb)
       return
     }
     event.disabled = true
   }
 
-  push(msg, cls = null) {
+  push(msg, cls = "error") {
     let btn
+    let fbWrapper = document.createElement("div")
+    fbWrapper.classList.add("content-wrapper")
     let fb = document.createElement("div")
-    fb.innerHTML = msg
     fb.classList.add("content")
-    if (cls) fb.classList.add(cls)
+    let status = document.createElement("span")
+    status.classList.add("status", cls)
+    let fbmsg = document.createElement("span")
+    fbmsg.classList.add("feedback-message")
+    fbmsg.innerHTML = msg
+    fb.append(status, fbmsg)
+    fbWrapper.append(fb)
+    // if (cls) fb.classList.add(cls)
     if (this.params.dismissable) {
       // add dismiss button
       btn = document.createElement("button")
@@ -122,6 +131,7 @@ class FeedBack {
         this.feedback.removeChild(this.feedback.firstChild)
       }
     }
-    this.feedback.append(fb)
+    this.feedback.append(fbWrapper)
+    this.feedbackCB(`Feedback given: ${msg}\n`)
   }
 }
