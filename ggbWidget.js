@@ -7,8 +7,7 @@ export default class GgbWidget {
     // this.fbId = `${this.divElementId}-fb`
     // default values
     let parameters = {
-      width:
-        document.getElementById(divElementId).clientWidth < 800 ? 600 : 800,
+      width: document.getElementById(divElementId).clientWidth < 800 ? 600 : 800,
       // width: 600,
       height: 450,
       // borderColor: null,
@@ -40,8 +39,8 @@ export default class GgbWidget {
 
     this.vars = {}
     // console.log(this.config.parameters)
-
-    this.answer = answer || ""
+    this.ans = answer || { log: [] }
+    this.answer = ""
     this.onAnswer = onAnswer
     if (options.playback) {
       this.playback = options.playback
@@ -64,27 +63,73 @@ export default class GgbWidget {
   addUpdateListener = (api, name, type) => {
     console.log("name:", name, "type:", type)
     let listener
-    if (type == "point") {
-      listener = objName => {
-        let x = api.getXcoord(objName).toFixed(4)
-        let y = api.getYcoord(objName).toFixed(4)
-        this.vars[name + "x"] = x
-        this.vars[name + "y"] = y
-        // console.log(this.vars)
-        this.answer += `Point ${name} updated to (${x},${y})\n`
-        this.putAns()
+    listener = objName => {
+      let data = {}
+      let value = api.getValue(objName)
+      if (value !== NaN && value !== null) {
+        data.value = value
+        this.vars[name] = value
       }
-      api.registerObjectUpdateListener(name, debounced(250, listener))
-      listener(name)
+      if (type == "point") {
+        data = {
+          x: api.getXcoord(objName).toFixed(4),
+          y: api.getYcoord(objName).toFixed(4)
+        }
+        this.vars[name + "x"] = data.x
+        this.vars[name + "y"] = data.y
+        this.answer += `Point ${name} updated to (${data.x},${data.y})\n`
+      }
+      // console.log(this.vars)
+      this.logger(api, name)
+      // this.ans.log.push({
+      //   action: "UPDATE",
+      //   objec_name: objName,
+      //   object_type: api.getObjectType(objName),
+      //   data: `( ${x} , ${y} )`,
+      //   time: Date.now(),
+      //   delta_time: this.ans.log.length
+      //     ? Date.now() - this.ans.log[this.ans.log.length - 1].time
+      //     : null
+      // })
+      this.putAns()
     }
+    api.registerObjectUpdateListener(name, debounced(250, listener))
+    // listener(name)
+  }
+
+  logger = (api, objName, action = "UPDATE") => {
+    let type = api.getObjectType(objName)
+    if (action === "ADD") this.addUpdateListener(api, objName, type)
+    let data = {}
+    let value = api.getValue(objName)
+    if (value !== NaN && value !== null) data.value = value
+    if (type === "point") {
+      data = {
+        x: api.getXcoord(objName).toFixed(4),
+        y: api.getYcoord(objName).toFixed(4)
+      }
+    } else if (type === "angle") {
+      data.value *= 180 / Math.PI
+    }
+    let def = api.getDefinitionString(objName)
+    if (def !== "") data["definition_string"] = def
+    this.ans.log.push({
+      action: action,
+      objec_name: objName,
+      object_type: type,
+      data: data,
+      time: Date.now(),
+      delta_time: this.ans.log.length
+        ? Date.now() - this.ans.log[this.ans.log.length - 1].time
+        : null
+    })
   }
 
   appletOnLoad = api => {
     const addListener = objName => {
-      let type = api.getObjectType(objName)
-      this.answer += `add ${type}: ${objName}  \n`
+      this.logger(api, objName, "ADD")
+      this.answer += `add ${api.getObjectType(objName)}: ${objName}  \n`
       this.putAns()
-      this.addUpdateListener(api, objName, type)
     }
     api.registerAddListener(addListener)
 
@@ -105,6 +150,7 @@ export default class GgbWidget {
       //initialize variables
       // o.listener(o.name)
     }
+    api.recalculateEnvironments()
   }
 
   currentTimeMs() {
@@ -117,6 +163,7 @@ export default class GgbWidget {
   }
 
   putAns() {
+    console.log(JSON.stringify(this.ans.log, null, 2))
     this.onAnswer(this.answer)
   }
 
