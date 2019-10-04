@@ -216,7 +216,7 @@
   line-height: 50px;
   color: #fff;
   border-radius: 5px;
-  transition: all 0.2s;
+  transition: all 0.1s;
   background: #00ae68;
   box-shadow: 0px 5px 0px 0px #007144;
 }
@@ -228,5 +228,6 @@
 .feedback-button:active {
   margin-top: 15px;
   /* margin-bottom: 5px; */
+  transform: translateY(5px);
   box-shadow: 0px 0px 0px 0px #007144;
 }

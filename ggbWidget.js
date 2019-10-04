@@ -61,22 +61,49 @@ export default class GgbWidget {
     )
   }
 
-  appletOnLoad = api => {
-    for (let o of this.config.vars) {
-      if (o.type == "point") {
-        o.listener = objName => {
-          let x = api.getXcoord(objName).toFixed(4)
-          let y = api.getYcoord(objName).toFixed(4)
-          this.vars[o.name + "x"] = x
-          this.vars[o.name + "y"] = y
-          // console.log(this.vars)
-          this.answer += `Point ${o.name} updated to (${x},${y})\n`
-          this.putAns()
-        }
+  addUpdateListener = (api, name, type) => {
+    console.log("name:", name, "type:", type)
+    let listener
+    if (type == "point") {
+      listener = objName => {
+        let x = api.getXcoord(objName).toFixed(4)
+        let y = api.getYcoord(objName).toFixed(4)
+        this.vars[name + "x"] = x
+        this.vars[name + "y"] = y
+        // console.log(this.vars)
+        this.answer += `Point ${name} updated to (${x},${y})\n`
+        this.putAns()
       }
-      api.registerObjectUpdateListener(o.name, debounced(250, o.listener))
+      api.registerObjectUpdateListener(name, debounced(250, listener))
+      listener(name)
+    }
+  }
+
+  appletOnLoad = api => {
+    const addListener = objName => {
+      let type = api.getObjectType(objName)
+      this.answer += `add ${type}: ${objName}  \n`
+      this.putAns()
+      this.addUpdateListener(api, objName, type)
+    }
+    api.registerAddListener(addListener)
+
+    for (let o of this.config.vars) {
+      this.addUpdateListener(api, o.name, o.type)
+      // if (o.type == "point") {
+      // o.listener = objName => {
+      //   let x = api.getXcoord(objName).toFixed(4)
+      //   let y = api.getYcoord(objName).toFixed(4)
+      //   this.vars[o.name + "x"] = x
+      //   this.vars[o.name + "y"] = y
+      //   // console.log(this.vars)
+      //   this.answer += `Point ${o.name} updated to (${x},${y})\n`
+      //   this.putAns()
+      // }
+      // }
+      // api.registerObjectUpdateListener(o.name, debounced(250, o.listener))
       //initialize variables
-      o.listener(o.name)
+      // o.listener(o.name)
     }
   }
 

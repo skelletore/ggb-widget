@@ -24,7 +24,7 @@ let config = {
   ggbApplet: {
     ggbBase64: b64,
     showMenuBar: false,
-    showToolBar: false
+    showToolBar: true
   },
   vars: [{ name: "A", type: "point" }, { name: "B", type: "point" }],
   // ggbApplet: par,
