@@ -36,22 +36,25 @@ class FeedBack {
   }
   init() {
     this.container = document.createElement("div")
-    this.container.classList.add("feedback-container")
+    this.container.classList.add("feedback-wrapper")
     this.feedback = document.createElement("div")
     this.feedback.classList.add("feedback")
     let heading = document.createElement("div")
     heading.classList.add("feedback-heading")
-    heading.innerHTML = "<em>Feedback</em>"
-    let btn = document.createElement("button")
+    heading.innerHTML = "<em>FEEDBACK</em>"
+    let footer = document.createElement("div")
+    footer.classList.add("feedback-footer")
+    let btn = document.createElement("div")
     btn.classList.add("feedback-button")
-    btn.innerHTML = "check"
+    btn.innerHTML = "CHECK"
     btn.onclick = this.checkAns
-    this.container.append(heading, btn, this.feedback)
+    footer.append(btn)
+    this.container.append(heading, this.feedback, footer)
 
     document.getElementById(this.eid).append(this.container)
     // 	document.getElementById(this.eid).classList.add('feedback-column')
     // else document.getElementById(this.eid).classList.add('feedback-row')
-    document.getElementById(this.eid).classList.add("feedback-grid")
+    document.getElementById(this.eid).classList.add("feedback-container")
   }
   checkAns = event => {
     let conds = []
