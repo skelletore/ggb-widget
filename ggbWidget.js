@@ -1,3 +1,5 @@
+const DEBUG = true
+
 export default class GgbWidget {
   // kun for matistikk
   // class GgbWidget {
@@ -33,14 +35,12 @@ export default class GgbWidget {
     // this.config.parameters = { ...parameters, ...config.ggbApplet }
     this.config = {
       ggbApplet: { ...parameters, ...config.ggbApplet },
-      feedback: config.feedback || [],
+      feedback: config.feedback || null,
       vars: config.vars || []
     }
 
     this.vars = {}
-    // console.log(this.config.parameters)
     this.ans = answer || { log: [] }
-    this.answer = ""
     this.onAnswer = onAnswer
     if (options.playback) {
       this.playback = options.playback
@@ -49,54 +49,51 @@ export default class GgbWidget {
     this.buildDOM()
     this.config.ggbApplet.appletOnLoad = this.appletOnLoad
     window.onload = this.runscript()
-    this.fb = new FeedBack(
-      divElementId,
-      this.config.feedback.params,
-      config.feedback.condition,
-      config.feedback.fb,
-      config.feedback.default,
-      this.vars,
-      this.setFb
-    )
+    if (this.config.feedback) {
+      this.fb = new FeedBack(
+        divElementId,
+        this.config.feedback.params,
+        config.feedback.condition,
+        config.feedback.feedbacks,
+        config.feedback.default,
+        this.vars,
+        this.setFb
+      )
+    }
   }
 
-  addUpdateListener = (api, name, type) => {
-    console.log("name:", name, "type:", type)
-    let listener
-    listener = objName => {
+  addUpdateListener = (api, name, type, vars = false) => {
+    // console.log("name:", name, "type:", type)
+    const appendVar = (objName = name) => {
       let data = {}
       let value = api.getValue(objName)
-      if (value !== NaN && value !== null) {
+      // console.log("value:", value, "typeof", typeof value)
+      if (!isNaN(value) && value !== null) {
         data.value = value
         this.vars[name] = value
       }
       if (type == "point") {
+        let x = api.getXcoord(objName),
+          y = api.getXcoord(objName)
         data = {
-          x: api.getXcoord(objName).toFixed(4),
-          y: api.getYcoord(objName).toFixed(4)
+          x: x.toFixed(5),
+          y: y.toFixed(5)
         }
-        this.vars[name + "x"] = data.x
-        this.vars[name + "y"] = data.y
-        this.answer += `Point ${name} updated to (${data.x},${data.y})\n`
+        this.vars[name + "x"] = x
+        this.vars[name + "y"] = y
       }
-      // console.log(this.vars)
-      this.logger(api, name)
-      // this.ans.log.push({
-      //   action: "UPDATE",
-      //   objec_name: objName,
-      //   object_type: api.getObjectType(objName),
-      //   data: `( ${x} , ${y} )`,
-      //   time: Date.now(),
-      //   delta_time: this.ans.log.length
-      //     ? Date.now() - this.ans.log[this.ans.log.length - 1].time
-      //     : null
-      // })
-      this.putAns()
     }
-    api.registerObjectUpdateListener(name, debounced(250, listener))
-    // listener(name)
+    let listener
+    listener = objName => {
+      if (vars) appendVar(objName)
+      this.logger(api, name)
+    }
+    api.registerObjectUpdateListener(name, _debounced(250, listener))
+    appendVar()
   }
-
+  /**
+   * Logs action to the answer.log array
+   */
   logger = (api, objName, action = "UPDATE") => {
     let type = api.getObjectType(objName)
     if (action === "ADD") this.addUpdateListener(api, objName, type)
@@ -105,8 +102,8 @@ export default class GgbWidget {
     if (value !== NaN && value !== null) data.value = value
     if (type === "point") {
       data = {
-        x: api.getXcoord(objName).toFixed(4),
-        y: api.getYcoord(objName).toFixed(4)
+        x: api.getXcoord(objName).toFixed(5),
+        y: api.getYcoord(objName).toFixed(5)
       }
     } else if (type === "angle") {
       data.value *= 180 / Math.PI
@@ -115,7 +112,7 @@ export default class GgbWidget {
     if (def !== "") data["definition_string"] = def
     this.ans.log.push({
       action: action,
-      objec_name: objName,
+      object_name: objName,
       object_type: type,
       data: data,
       time: Date.now(),
@@ -123,32 +120,17 @@ export default class GgbWidget {
         ? Date.now() - this.ans.log[this.ans.log.length - 1].time
         : null
     })
+    this.putAns()
   }
 
   appletOnLoad = api => {
     const addListener = objName => {
       this.logger(api, objName, "ADD")
-      this.answer += `add ${api.getObjectType(objName)}: ${objName}  \n`
-      this.putAns()
     }
     api.registerAddListener(addListener)
 
     for (let o of this.config.vars) {
-      this.addUpdateListener(api, o.name, o.type)
-      // if (o.type == "point") {
-      // o.listener = objName => {
-      //   let x = api.getXcoord(objName).toFixed(4)
-      //   let y = api.getYcoord(objName).toFixed(4)
-      //   this.vars[o.name + "x"] = x
-      //   this.vars[o.name + "y"] = y
-      //   // console.log(this.vars)
-      //   this.answer += `Point ${o.name} updated to (${x},${y})\n`
-      //   this.putAns()
-      // }
-      // }
-      // api.registerObjectUpdateListener(o.name, debounced(250, o.listener))
-      //initialize variables
-      // o.listener(o.name)
+      this.addUpdateListener(api, o.name, o.type, true)
     }
     api.recalculateEnvironments()
   }
@@ -158,22 +140,32 @@ export default class GgbWidget {
   }
   // CB sendt til feedback klassen, legger til feedback til svar objektet
   setFb = msg => {
-    this.answer += msg
+    this.ans.log.push({
+      action: "FEEDBACK",
+      data: msg,
+      time: Date.now(),
+      delta_time: this.ans.log.length
+        ? Date.now() - this.ans.log[this.ans.log.length - 1].time
+        : null
+    })
     this.putAns()
   }
 
   putAns() {
+    //! ONLY FOR DEBUGGING
+    const LENGTH = 3
+    const tail = (arr = []) => {
+      return arr.slice(-3)
+    }
+    //
     console.log(JSON.stringify(this.ans.log, null, 2))
-    this.onAnswer(this.answer)
+    this.onAnswer(JSON.stringify(tail(this.ans.log).reverse(), null, 2))
+    // this.onAnswer(this.answer)
   }
 
   buildDOM() {
-    // let feedback = document.createElement("div")
-    // feedback.id = this.fbId
-    // feedback.classList.add("feedback")
-    // feedback.innerHTML = `<div class="feedback content">FEEDBACK<button class="closebtn">X</button></div>`
     let ggb = document.createElement("div")
-    ggb.classList.add("widget-box", "grid-item")
+    ggb.classList.add("widget-box")
     ggb.id = this.ggbId
 
     document.getElementById(this.divElementId).append(ggb)
@@ -202,53 +194,110 @@ var ggbWidget = {
     description: "Geogebra",
     type: "object",
     properties: {
-      height: {
-        type: "number",
-        title: "Height"
+      ggbApplet: {
+        type: "object",
+        title: "GGBApplet"
       },
-      width: {
-        type: "number",
-        title: "Width"
-      },
-      swatches: {
+      vars: {
         type: "array",
-        title: "Color Swatches (in Hex)"
+        title: "Variables",
+        description: "Variables for feedback checking"
       },
-      strokeWidths: {
-        type: "array",
-        title: "Allowed stroke sizes (from small to large)"
-      },
-      clear: {
-        type: "boolean",
-        title: "Allowed to clear canvas"
-      },
-      undo: {
-        type: "boolean",
-        title: "Allowed to undo last stroke"
+      feedback: {
+        type: "object",
+        properties: {
+          parameters: {
+            type: "object",
+            title: "Parameters",
+            description: "Parameters for feedback module"
+          },
+          default: {
+            type: "string",
+            title: "defaultFB",
+            description: "fallback feedback if no condition is true"
+          },
+          feedbacks: {
+            type: "array",
+            title: "feedbacks",
+            description: "Array of arrays for feedback (1-1 correspondance with conditions)"
+          },
+          conditions: {
+            type: "array",
+            title: "conditions",
+            description:
+              "Array of conditions to check which feedback to give (1-1 correspondance with feedbacks)"
+          }
+        }
       }
     }
   },
+
   // prettier-ignore
   jsonSchemaData: {
-		"height": 600,
-		"width": 600,
-		"swatches": ["000","#666666","#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e","#e6ab02","#a6761d"],
-		"strokeWidths": [7, 14, 21, 35],
-		"clear": true,
-		"undo": true
+		"ggbApplet": {},
+		"vars": [],
+		"feedback": {},
 	},
   // prettier-ignore
   configStructure: {
-		"height": "600",
-		"width": "600",
-		"swatches": ["000","#666666","#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e","#e6ab02","#a6761d"],
-		"strokeWidths": [7, 14, 21, 35],
-		"clear": "true",
-		"undo": "true"
+		"ggbApplet": {
+      "ggbBase64":"XXX"
+    }, // see https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
+		"vars": [
+      {
+        "name": "Name of geogebra object",
+        "type": "numeric | point | line | segment | polygon | ..."
+    }
+    ],
+		"feedback": {
+      "parameters": {
+        "dismissable": true,  // default
+        "multi": true,        // default
+        "forgetful": false,   // default
+        "random": true        // default
+      },
+      "default": "Default feedback to give when no conditions return true",
+      "feedbacks": [
+        [
+          "feedback A1",
+          "feedback A2"
+        ],
+        [
+          "feedback B1",
+          "feedback B2"
+          // and so on
+        ]
+      ],
+      // Must be in 1-1 correspondans with elements in feedbacks array
+      "conditions":[
+        {
+          "op": "lt | leq | gt | geq | eq | neq | and | or | and | xor | add | sub | mult | div",
+          "a": "First argument (read left to right). Can be of type string | number | boolean",
+          "b": "Second argument to access vars start string with '_', e.g. '_m' or '_Ax'(x-coordinate of point A) "
+        },
+        {
+          "op": "Conditions can be nested",
+          "a": {
+            "op": "and",
+            "a": true,
+            "b": true
+          },
+          "b": {
+            "op": "or",
+            "a": {
+              // etc...
+            },
+            "b": {
+              // etc ..
+            }
+          }
+        }
+      ]
+    },
 	}
 }
 
-function debounced(delay, fn) {
+function _debounced(delay, fn) {
   let timerId
   return function(...args) {
     if (timerId) {

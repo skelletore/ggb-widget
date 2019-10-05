@@ -12,33 +12,19 @@
 const pos = ["t", "b", "l", "r"]
 
 class FeedBack {
-  constructor(
-    eid,
-    params = {},
-    conditions = [],
-    fbs = [],
-    def = null,
-    vars = null,
-    ans = null
-  ) {
+  constructor(eid, params = {}, conditions = [], fbs = [], def = null, vars = null, ans = null) {
     if (!eid) {
       console.error("An element ID is required")
       return void 0
     }
     this.eid = eid
     let defaultParams = {
-      pos: "t",
       dismissable: true,
       multi: true,
       forgetful: false,
       random: true
     }
-    if (params.pos && !pos.includes(params.pos))
-      console.error(
-        "position must be on of the following: ",
-        pos.join(", "),
-        "\ncontinuing with default position!"
-      )
+
     this.params = { ...defaultParams, ...params }
     this.conditions = conditions
     this.feedbacks = fbs
@@ -62,12 +48,7 @@ class FeedBack {
     btn.onclick = this.checkAns
     this.container.append(heading, btn, this.feedback)
 
-    let pos = this.params.pos
-    if (pos == "t" || pos == "r")
-      document.getElementById(this.eid).prepend(this.container)
-    else if (pos == "b" || pos == "l")
-      document.getElementById(this.eid).append(this.container)
-    // if (pos == 't' || pos == 'b')
+    document.getElementById(this.eid).append(this.container)
     // 	document.getElementById(this.eid).classList.add('feedback-column')
     // else document.getElementById(this.eid).classList.add('feedback-row')
     document.getElementById(this.eid).classList.add("feedback-grid")
@@ -132,6 +113,6 @@ class FeedBack {
       }
     }
     this.feedback.append(fbWrapper)
-    this.feedbackCB(`Feedback given: ${msg}\n`)
+    this.feedbackCB(msg)
   }
 }
