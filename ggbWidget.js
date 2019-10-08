@@ -86,7 +86,7 @@ export default class GgbWidget {
   /**
    * Logs action to the answer.log array
    */
-  logger = (api, objName, action = "UPDATE") => {
+  logger = (api, objName = null, action = "UPDATE") => {
     let type = api.getObjectType(objName)
     if (action === "ADD") this.addUpdateListener(api, objName, type)
     let data = {}
@@ -120,6 +120,16 @@ export default class GgbWidget {
       this.logger(api, objName, "ADD")
     }
     api.registerAddListener(addListener)
+
+    const clearListener = () => {
+      this.logger(api, null, "RESET")
+    }
+    api.registerClearListener(clearListener)
+
+    const clickListener = obj => {
+      console.log(obj)
+    }
+    api.registerClickListener(clickListener)
 
     for (let o of this.config.vars) {
       this.addUpdateListener(api, o.name, o.type, true, o.aux)
