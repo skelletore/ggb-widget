@@ -1,5 +1,3 @@
-const DEBUG = true
-
 export default class GgbWidget {
   // kun for matistikk
   // class GgbWidget {
@@ -9,7 +7,8 @@ export default class GgbWidget {
     // this.fbId = `${this.divElementId}-fb`
     // default values
     let parameters = {
-      width: document.getElementById(divElementId).clientWidth < 800 ? 600 : 800,
+      width:
+        document.getElementById(divElementId).clientWidth < 800 ? 600 : 800,
       // width: 600,
       height: 450,
       // borderColor: null,
@@ -53,7 +52,6 @@ export default class GgbWidget {
       this.fb = new FeedBack(
         divElementId,
         this.config.feedback.params,
-        config.feedback.condition,
         config.feedback.feedbacks,
         config.feedback.default,
         this.vars,
@@ -62,31 +60,25 @@ export default class GgbWidget {
     }
   }
 
-  addUpdateListener = (api, name, type, vars = false) => {
+  addUpdateListener = (api, name, type, vars = false, aux = false) => {
     // console.log("name:", name, "type:", type)
     const appendVar = (objName = name) => {
-      let data = {}
       let value = api.getValue(objName)
       // console.log("value:", value, "typeof", typeof value)
       if (!isNaN(value) && value !== null) {
-        data.value = value
         this.vars[name] = value
       }
       if (type == "point") {
         let x = api.getXcoord(objName),
-          y = api.getXcoord(objName)
-        data = {
-          x: x.toFixed(5),
-          y: y.toFixed(5)
-        }
+          y = api.getYcoord(objName)
+
         this.vars[name + "x"] = x
         this.vars[name + "y"] = y
       }
     }
-    let listener
-    listener = objName => {
+    let listener = objName => {
       if (vars) appendVar(objName)
-      this.logger(api, name)
+      if (!aux) this.logger(api, name)
     }
     api.registerObjectUpdateListener(name, _debounced(250, listener))
     appendVar()
@@ -130,7 +122,7 @@ export default class GgbWidget {
     api.registerAddListener(addListener)
 
     for (let o of this.config.vars) {
-      this.addUpdateListener(api, o.name, o.type, true)
+      this.addUpdateListener(api, o.name, o.type, true, o.aux)
     }
     api.recalculateEnvironments()
   }
@@ -158,7 +150,7 @@ export default class GgbWidget {
       return arr.slice(-3)
     }
     //
-    console.log(JSON.stringify(this.ans.log, null, 2))
+    // console.log(JSON.stringify(this.ans.log, null, 2))
     this.onAnswer(JSON.stringify(tail(this.ans.log).reverse(), null, 2))
     // this.onAnswer(this.answer)
   }
@@ -219,7 +211,8 @@ var ggbWidget = {
           feedbacks: {
             type: "array",
             title: "feedbacks",
-            description: "Array of arrays for feedback (1-1 correspondance with conditions)"
+            description:
+              "Array of arrays for feedback (1-1 correspondance with conditions)"
           },
           conditions: {
             type: "array",

@@ -2,44 +2,59 @@
  * Class for showing feedback
  * eid: DOM element id where the feedback should live *REQUIRED*
  * takes inn params (objec)
- * pos: position where the feedback div is placed ('t', 'b', 'l', 'r')
- *      default: 't'
  * dismissable: Boolean wheter feedbacks are dismissable
  *              default: true
  *
  * This class comes with a style sheet (feedback.css)
  */
-const pos = ["t", "b", "l", "r"]
 
+/**
+ * Feedback class
+ * Handles feedback wrt a widget.
+ *
+ * @class FeedBack
+ */
 class FeedBack {
+  /**
+   *Creates an instance of FeedBack.
+   * @param {string} eid DOM-element id for where the feedback div should append it self to.
+   * @param {object} [config={}]
+   * @param {array} [feedbacks=[]] array of feedback objects of type { @param {object} condition, @param {array} strings, @param {string} class}
+   * @param {object} [def={}] feedback object for default feedback, if no conditions are met this feedback will be given.
+   * @param {object} [vars=null] object with reference to values to check conditions up against
+   * @param {function} [cb=null] Callback to send feedback given up to the widget scope
+   * @memberof FeedBack
+   */
   constructor(
     eid,
-    params = {},
-    conditions = [],
-    fbs = [],
-    def = null,
+    config = {},
+    feedbacks = [],
+    def = {},
     vars = null,
-    ans = null
+    cb = null
   ) {
     if (!eid) {
       console.error("An element ID is required")
       return void 0
     }
     this.eid = eid
-    let defaultParams = {
+    let defaultConfig = {
       dismissable: true,
       multi: true,
       forgetful: false,
-      random: true
+      random: true,
+      strict: false,
+      maxCount: null
     }
 
-    this.params = { ...defaultParams, ...params }
-    this.conditions = conditions
-    this.feedbacks = fbs
+    this.config = { ...defaultConfig, ...config }
+    this.feedbacks = feedbacks
     this.defaultFb = def
     this.givenFb = []
     this.vars = vars
-    this.feedbackCB = ans
+    this.cb = cb
+    this.count = 0
+    this.btn
     window.onloadend = this.init()
   }
   init() {
@@ -52,45 +67,67 @@ class FeedBack {
     heading.innerHTML = "<em>FEEDBACK</em>"
     let footer = document.createElement("div")
     footer.classList.add("feedback-footer")
-    let btn = document.createElement("div")
-    btn.classList.add("feedback-button")
-    btn.innerHTML = "CHECK"
-    btn.onclick = this.checkAns
-    footer.append(btn)
+    this.btn = document.createElement("div")
+    this.btn.classList.add("feedback-button")
+    this.btn.innerHTML = "CHECK"
+    this.btn.onclick = this.checkAns
+    footer.append(this.btn)
     this.container.append(heading, this.feedback, footer)
-
     document.getElementById(this.eid).append(this.container)
-    // 	document.getElementById(this.eid).classList.add('feedback-column')
-    // else document.getElementById(this.eid).classList.add('feedback-row')
     document.getElementById(this.eid).classList.add("feedback-grid")
   }
   checkAns = event => {
-    let conds = []
-    for (let c of this.conditions) {
-      let ch = check(c, this.vars)
-      conds.push(ch)
-      // console.log(`checking condition ${c}, evaluated to ${ch}`)
-    }
+    // let conds = []
+    // for (let c of this.conditions) {
+    //   let ch = check(c, this.vars)
+    //   conds.push(ch)
+    //   // console.log(`checking condition ${c}, evaluated to ${ch}`)
+    // }
     let fbs = this.feedbacks
-      .filter((f, i) => {
-        return conds[i]
+      .filter(f => {
+        return check(f.condition, this.vars)
       })
-      .flat()
-      .filter(f => !this.givenFb.includes(f))
-    if (!fbs.length && !this.givenFb.includes(this.defaultFb)) {
-      this.givenFb.push(this.defaultFb)
-      this.push(this.defaultFb, "error")
-      return
-    } else if (fbs.length) {
-      // console.log(fbs)
-      let rand = Math.random()
-      let floor = Math.floor
-      let fb = fbs[floor(rand * fbs.length + 1) - 1]
-      this.givenFb.push(fb)
-      this.push(fb)
-      return
+      .map(x => {
+        let strings = this.config.forgetful
+          ? x.strings
+          : x.strings.filter(f => !this.givenFb.includes(f))
+        return {
+          class: x.class,
+          strings: strings
+        }
+      })
+      .filter(x => x.strings.length)
+    console.log(fbs)
+    let msg, cls
+    if (fbs.map(x => x.strings).flat().length) {
+      if (this.config.strict) {
+        let current = fbs.find(x => x.strings.length)
+        msg = current.strings[0]
+        cls = current.class
+      } else if (this.config.random) {
+        let current = fbs[Math.floor(Math.random() * fbs.length + 1) - 1]
+        msg =
+          current.strings[
+            Math.floor(Math.random() * current.strings.length + 1) - 1
+          ]
+        cls = current.class
+      }
+      this.count++
     }
-    event.disabled = true
+    //  else if (!this.givenFb.includes(this.defaultFb.string)) {
+    else {
+      msg = this.defaultFb.string
+      cls = this.defaultFb.class
+    }
+    if (msg) {
+      this.givenFb.push(msg)
+      this.push(msg, cls)
+    }
+    if (this.config.maxCount && this.count >= this.config.maxCount) {
+      //Disable check btn!
+      console.log(this.btn)
+      this.btn.classList.add("disabled")
+    }
   }
 
   push(msg, cls = "info") {
@@ -107,7 +144,7 @@ class FeedBack {
     fb.append(status, fbmsg)
     fbWrapper.append(fb)
     // if (cls) fb.classList.add(cls)
-    if (this.params.dismissable) {
+    if (this.config.dismissable) {
       // add dismiss button
       btn = document.createElement("button")
       btn.classList.add("dismiss")
@@ -118,12 +155,12 @@ class FeedBack {
         event.target.parentElement.style.display = "none"
       }
     }
-    if (!this.params.multi) {
+    if (!this.config.multi) {
       while (this.feedback.firstChild) {
         this.feedback.removeChild(this.feedback.firstChild)
       }
     }
     this.feedback.prepend(fbWrapper)
-    this.feedbackCB(msg)
+    this.cb(msg)
   }
 }

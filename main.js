@@ -26,91 +26,101 @@ let config = {
   ggbApplet: {
     height: 600,
     ggbBase64: b64,
-    showMenuBar: false,
-    showToolBar: false
+    customToolbar: "0|2", //see https://wiki.geogebra.org/en/Reference:Toolbar for codes
+    showMenuBar: true,
+    showToolBar: true,
+    enableRightClick: true
   },
   vars: [
-    { name: "A", type: "point" },
-    { name: "B", type: "point" },
-    { name: "m", type: "numeric" }
+    { name: "A", type: "point", aux: false },
+    { name: "B", type: "point", aux: false },
+    { name: "C", type: "point", aux: true },
+    { name: "m", type: "numeric", aux: true }
   ],
   // ggbApplet: par,
   feedback: {
     params: {
-      pos: "b",
       dismissable: false,
-      multi: true
+      multi: true,
+      strict: true,
+      maxCount: 2
     },
-    default: "Kan ikke se hva jeg kan si annet enn det som er sagt før...",
+    default: {
+      string: "Finner ikke noe jeg kan gi tilbakemelding på 💩",
+      class: "error"
+    },
     feedbacks: [
-      [
-        "Hvordan finner man stigningstallet?",
-        "Hva vet du om fortegnet til stigningstallet?",
-        "Kan stigningstallet være negativt?",
-        "Dette er en fryktelig lang tilbakemelding for å teste hvordan det påvirker stilen. Hva skjer med statusfliken? blir den veldig smal?! Hva med linjeskift? <br> Dette er en ny linje, som fortsetter og fortsetter..."
-      ],
-      [
-        "Hva kan du si om forholdet mellom <i>a</i> og <i>b</i>?",
-        "Hvorfor er <i>a</i> mindre enn <i>b</i>?"
-      ],
-      ["Sjekk skjæring med y-aksen..."]
-    ],
-    condition: [
-      // {
-      //   op: "geq",
-      //   a: 0,
-      //   b: {
-      //     op: "div",
-      //     a: {
-      //       op: "sub",
-      //       a: "_By",
-      //       b: "_Ay"
-      //     },
-      //     b: {
-      //       op: "sub",
-      //       a: "_Bx",
-      //       b: "_Ax"
-      //     }
-      //   }
-      // },
       {
-        op: "lt",
-        a: "_m",
-        b: 0
-      },
-      {
-        op: "leq",
-        a: "_Ax",
-        b: "_Bx"
-      },
-      {
-        op: "and",
-        a: {
+        condition: {
           op: "and",
-          a: {
-            op: "neq",
+          a: { op: "eq", a: "_Cy", b: -1 },
+          b: {
+            op: "eq",
             a: "_m",
             b: 2
-          },
-          b: {
-            op: "neq",
-            a: "_Cy",
-            b: -1
           }
         },
-        b: {
-          op: "xor",
+        strings: ["⭐Korrekt⭐"],
+        class: "sucess"
+      },
+      {
+        condition: {
+          op: "lt",
+          a: "_m",
+          b: 0
+        },
+        strings: [
+          "Hvordan finner man stigningstallet?",
+          "Hva vet du om fortegnet til stigningstallet?",
+          "Kan stigningstallet være negativt?",
+          "Dette er en fryktelig lang tilbakemelding for å teste hvordan det påvirker stilen. Hva skjer med statusfliken? blir den veldig smal?! Hva med linjeskift? <br> Dette er en ny linje, som fortsetter og fortsetter..."
+        ],
+        class: "warning"
+      },
+      {
+        condition: {
+          op: "leq",
+          a: "_Ax",
+          b: "_Bx"
+        },
+        strings: [
+          "Hva kan du si om forholdet mellom <i>a</i> og <i>b</i>?",
+          "Hvorfor er <i>a</i> mindre enn <i>b</i>?"
+        ],
+        class: "info"
+      },
+      {
+        condition: {
+          op: "and",
           a: {
-            op: "neq",
-            a: "_Ax",
-            b: 0
+            op: "and",
+            a: {
+              op: "neq",
+              a: "_m",
+              b: 2
+            },
+            b: {
+              op: "neq",
+              a: "_Cy",
+              b: -1
+            }
           },
           b: {
-            op: "neq",
-            a: "_Bx",
-            b: 0
+            op: "xor",
+            a: {
+              op: "neq",
+              a: "_Ax",
+              b: 0
+            },
+            b: {
+              op: "neq",
+              a: "_Bx",
+              b: 0
+            }
           }
-        }
+        },
+        strings: ["Sjekk skjæring med y-aksen..."],
+        class: "info"
       }
     ]
   }
