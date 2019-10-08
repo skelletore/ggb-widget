@@ -24,12 +24,12 @@ let b64 =
 // Config for widget
 let config = {
   ggbApplet: {
-    height: 600,
+    height: 700,
     ggbBase64: b64,
-    customToolbar: "0|2", //see https://wiki.geogebra.org/en/Reference:Toolbar for codes
-    showMenuBar: true,
-    showToolBar: true,
-    enableRightClick: true
+    customToolbar: "0|2" //see https://wiki.geogebra.org/en/Reference:Toolbar for codes
+    // showMenuBar: true,
+    // showToolBar: true,
+    // enableRightClick: true
   },
   vars: [
     { name: "A", type: "point", aux: false },
@@ -42,8 +42,8 @@ let config = {
     params: {
       dismissable: false,
       multi: true,
-      strict: true,
-      maxCount: 2
+      strict: true
+      // maxCount: 2
     },
     default: {
       string: "Finner ikke noe jeg kan gi tilbakemelding på 💩",
@@ -53,7 +53,11 @@ let config = {
       {
         condition: {
           op: "and",
-          a: { op: "eq", a: "_Cy", b: -1 },
+          a: {
+            op: "eq",
+            a: "_Cy",
+            b: -1
+          },
           b: {
             op: "eq",
             a: "_m",

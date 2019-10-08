@@ -97,7 +97,6 @@ class FeedBack {
         }
       })
       .filter(x => x.strings.length)
-    console.log(fbs)
     let msg, cls
     if (fbs.map(x => x.strings).flat().length) {
       if (this.config.strict) {
@@ -125,7 +124,6 @@ class FeedBack {
     }
     if (this.config.maxCount && this.count >= this.config.maxCount) {
       //Disable check btn!
-      console.log(this.btn)
       this.btn.classList.add("disabled")
     }
   }

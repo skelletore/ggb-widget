@@ -12,9 +12,9 @@ export default class GgbWidget {
       // width: 600,
       height: 450,
       // borderColor: null,
-      showMenuBar: true,
+      showMenuBar: false,
       // showAlgebraInput: false,
-      // showToolBar: false,
+      showToolBar: false,
       // customToolbar: '0|1', //see https://wiki.geogebra.org/en/Reference:Toolbar for codes
       showResetIcon: false,
       enableLabelDrags: false,
@@ -156,11 +156,13 @@ export default class GgbWidget {
   }
 
   buildDOM() {
+    let parent = document.getElementById(this.divElementId)
+    parent.setAttribute("height", `${this.config.ggbApplet.height}px`)
     let ggb = document.createElement("div")
     ggb.classList.add("widget-box")
     ggb.id = this.ggbId
 
-    document.getElementById(this.divElementId).append(ggb)
+    parent.append(ggb)
   }
 
   runscript() {
