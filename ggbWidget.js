@@ -3,7 +3,7 @@ export default class GgbWidget {
 	// class GgbWidget {
 	constructor(divElementId, config, answer = null, onAnswer, options) {
 		this.divElementId = divElementId
-		this.ggbId = `${this.divElementId}-ggb-container`
+		this.ggbId = `${this.divElementId}GGBcontainer`
 		// this.fbId = `${this.divElementId}-fb`
 		// default values
 		let parameters = {
@@ -121,6 +121,7 @@ export default class GgbWidget {
 	}
 
 	appletOnLoad = api => {
+		this.api = api
 		const addListener = objName => {
 			this.logger(api, objName, 'ADD')
 		}
@@ -138,7 +139,7 @@ export default class GgbWidget {
 
 		const clientListener = evt => {
 			if (evt[0] == 'removeMacro') this.logger(api, null, 'RESET')
-			console.log('Client:', evt)
+			// console.log('Client:', evt)
 		}
 		api.registerClientListener(clientListener)
 
@@ -205,7 +206,6 @@ export default class GgbWidget {
 		)
 		// this.ggb = this.applet.getAppletObject()
 		this.applet.inject(this.ggbId)
-		// this.ggb = this.applet.getAppletObject()
 		// this.applet.inject()
 	}
 }
