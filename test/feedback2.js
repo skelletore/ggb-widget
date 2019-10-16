@@ -132,9 +132,7 @@ class FeedBack {
           ]
         cls = current.class
       }
-    }
-    //  else if (!this.givenFb.includes(this.defaultFb.string)) {
-    else {
+    } else {
       msg = this.defaultFb.string
       cls = this.defaultFb.class
     }

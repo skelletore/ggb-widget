@@ -71,6 +71,8 @@
   background: #00aabb;
   border-radius: 10px;
   padding: 8px;
+  /* box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.712),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06); */
 }
 
 .bubble::before {
@@ -85,4 +87,16 @@
   border-bottom: 0;
   border-right: 0;
   margin-bottom: -29px;
+}
+.bubble::after {
+  position: absolute;
+  content: "";
+  z-index: -1;
+  bottom: 0px;
+  left: 10px;
+  right: 10px;
+  top: 60%;
+  background: #48678594;
+  box-shadow: 0px 5px 20px 10px #3848588c;
+  border-radius: 100px/10px;
 }
