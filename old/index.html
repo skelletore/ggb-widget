@@ -8,13 +8,17 @@
 		<link rel="stylesheet" href="./index.css" />
 		<!-- **DEPENDENCIES**-->
 		<script src="https://cdn.geogebra.org/apps/deployggb.js"></script>
+		<script id="lzutf8" src="https://cdn.jsdelivr.net/npm/lzutf8/build/production/lzutf8.min.js"></script>
 		<!-- **DEPENDENCIES END**-->
-		<script src="../lib/filtrex.js" defer></script>
-		<script src="./feedback2.js" defer></script>
-		<link rel="stylesheet" href="./feedback2.css" />
+
+		<script src="./feedback.js"></script>
+		<link rel="stylesheet" href="./feedback.css" />
+		<script src="./conditional.js"></script>
+		<!-- <script src="./configs/configA.json" type="text/javascript"></script> -->
 		<script src="./main.js" type="module"></script>
 	</head>
 	<body>
+		<div class="grid-container">
 			<div class="header">
 				<h3>Testing ground for widgets</h3>
 				<p>A div container i provided and sent to the widget constructor</p>
@@ -27,5 +31,15 @@
 			<div class="widget" id="widget-container">
 			</div>
 
+			<div class="answer">
+				<p>Answer:</p>
+				<button id="setBtn" class="btn-ans">Set answer to new div</button>
+				<div>
+					<textarea cols="40" wrap="physical" id="answer"></textarea>
+				</div>
+			</div>
+		</div>
+
+		<div id="setAns"></div>
 	</body>
 </html>
