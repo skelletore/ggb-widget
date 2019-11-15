@@ -105,7 +105,6 @@ class FeedBack {
       .filter(x => x.strings.length)
     let msg, cls, meta
     if (fbs.map(x => x.strings).flat().length) {
-      console.log(fbs)
       if (this.config.strict) {
         let current = fbs.find(x => x.strings.length)
         msg = current.strings[0]

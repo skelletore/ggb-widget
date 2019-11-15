@@ -31,8 +31,7 @@ class FeedBack {
     feedbacks = [],
     def = {},
     vars = null,
-    cb = null,
-    jmpToState = null
+    cb = null
   ) {
     if (!eid) {
       console.error("An element ID is required")
@@ -40,12 +39,11 @@ class FeedBack {
     }
     this.eid = eid
     let defaultConfig = {
-      dismissable: true,
-      multi: false,
       forgetful: true,
       random: true,
       strict: false,
-      maxCount: null
+      maxCount: null,
+      startMessage: null
     }
 
     this.config = { ...defaultConfig, ...config }
@@ -57,7 +55,6 @@ class FeedBack {
     this.givenFb = []
     this.vars = vars
     this.cb = cb
-    this.jmpToState = jmpToState
 
     this.count = 0
     this.btn
@@ -102,8 +99,12 @@ class FeedBack {
     this.container.append(this.feedback, figure)
     document.getElementById(this.eid).append(this.container)
     document.getElementById(this.eid).classList.add("feedback-grid")
+    if (this.config.startMessage) {
+      this.start = true
+      this.push(this.config.startMessage)
+    }
   }
-  checkAns = event => {
+  checkAns = () => {
     let fbs = this.feedbacks
       .filter(f => {
         return f.check(this.vars)
@@ -114,44 +115,46 @@ class FeedBack {
           : x.strings.filter(f => !this.givenFb.includes(f))
         return {
           class: x.class,
-          strings: strings
+          strings: strings,
+          meta: x.meta,
+          cond: x.condition
         }
       })
       .filter(x => x.strings.length)
-    let msg, cls
+    let msg,
+      meta,
+      cond = null
     if (fbs.map(x => x.strings).flat().length) {
       if (this.config.strict) {
         let current = fbs.find(x => x.strings.length)
         msg = current.strings[0]
-        cls = current.class
+        cond = current.cond
+        meta = current.meta
       } else if (this.config.random) {
         let current = fbs[Math.floor(Math.random() * fbs.length + 1) - 1]
         msg =
           current.strings[
             Math.floor(Math.random() * current.strings.length + 1) - 1
           ]
-        cls = current.class
+        cond = current.condition
+        meta = current.meta
       }
     } else {
       msg = this.defaultFb.string
-      cls = this.defaultFb.class
+      meta = "default"
     }
     if (msg) {
       this.givenFb.push(msg)
-      this.push(msg, cls)
+      this.push(msg, meta, cond)
       this.count++
     }
-    if (
-      (this.config.maxCount && this.count >= this.config.maxCount) ||
-      cls === "sucess"
-    ) {
+    if (this.config.maxCount && this.count >= this.config.maxCount) {
       //Disable check btn!
       this.btn.classList.add("disabled")
     }
   }
 
-  push(msg, cls = "info") {
-    let btn
+  push(msg, meta = null, condition = null) {
     let id = this.count
     let fbWrapper = document.createElement("div")
     fbWrapper.classList.add("content-wrapper", "bubble")
@@ -161,28 +164,14 @@ class FeedBack {
     // fb.append(status, fbmsg)
     fbWrapper.append(fbmsg)
     // if (cls) fb.classList.add(cls)
-    if (this.config.dismissable) {
-      // add dismiss button
-      btn = document.createElement("button")
-      btn.classList.add("dismiss")
-      btn.innerHTML = "X"
-      fb.append(btn)
-      console.log(btn)
-      btn.onclick = function(event) {
-        event.target.parentElement.style.display = "none"
-      }
+
+    while (this.feedback.firstChild) {
+      this.feedback.removeChild(this.feedback.firstChild)
     }
-    if (this.jmpToState) {
-      fbWrapper.onclick = () => {
-        this.jmpToState(id)
-      }
-    }
-    if (!this.config.multi) {
-      while (this.feedback.firstChild) {
-        this.feedback.removeChild(this.feedback.firstChild)
-      }
-    }
+
     this.feedback.prepend(fbWrapper)
-    this.cb(msg)
+    if (!this.start)
+      this.cb({ meta: meta, feedback: msg, condition: condition })
+    this.start = false
   }
 }

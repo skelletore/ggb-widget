@@ -5,26 +5,26 @@
     "showResetIcon": true
   },
   "vars": [
-    { "name": "A", "type": "point", "aux": false },
-    { "name": "B", "type": "point", "aux": false },
-    { "name": "C", "type": "point", "aux": true },
-    { "name": "m", "type": "numeric", "aux": true }
+    { "name": "A", "type": "point", "logger": true },
+    { "name": "B", "type": "point", "logger": true },
+    { "name": "C", "type": "point", "logger": false },
+    { "name": "m", "type": "numeric", "logger": false }
   ],
   "feedback": {
     "params": {
       "dismissable": false,
-      "multi": false,
-      "strict": true
+      "strict": true,
+      "startMessage": "Hei, jeg kan kanskje hjelpe deg om du står fast. <br>Trykk på meg om du vil ha et hint som kan hjelpe deg videre på vegen! 📓"
     },
     "default": {
-      "string": "Finner ikke noe jeg kan gi tilbakemelding på 💩",
+      "string": "Dette var litt pinlig, jeg finner ikke noe jeg kan hjelpe deg med 💩.<br> Hva om du prøver litt på egenhånd og prøver igjen om litt...",
       "class": "error"
     },
     "feedbacks": [
       {
         "condition": "Cy==-1 and m==2",
         "strings": ["⭐Korrekt⭐"],
-        "class": "sucess"
+        "meta": "Korrekt"
       },
       {
         "condition": " m<0",
@@ -34,18 +34,18 @@
           "Kan stigningstallet være negativt?",
           "Dette er en fryktelig lang tilbakemelding for å teste hvordan det påvirker stilen. Hva skjer med statusfliken? blir den veldig smal?! Hva med linjeskift? <br> Dette er en ny linje, som fortsetter og fortsetter..."
         ],
-        "class": "warning"
+        "meta": "negativ stigning"
       },
       {
         "condition": "Cy!=-1 and m==2",
         "strings": ["Rett stigning men feil skjæring med y-aksen"],
-        "class": "info"
+        "meta": "rett stigning, men feil skjæring med y-aksen"
       },
       {
         "condition": "(m!=2 and Cy!=-1)and ((Ax!=0)!=(Bx!=0))",
 
         "strings": ["Sjekk skjæring med y-aksen..."],
-        "class": "info"
+        "meta": "feil skjæring og feil stigning"
       }
     ]
   }

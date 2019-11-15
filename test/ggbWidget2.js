@@ -1,6 +1,6 @@
-export default class GgbWidget {
-  // kun for matistikk
-  // class GgbWidget {
+// export default class GgbWidget2 {
+// kun for matistikk
+class GgbWidget2 {
   constructor(divElementId, config, answer = null, onAnswer, options) {
     this.divElementId = divElementId
     this.ggbId = `${this.divElementId}GGBcontainer`
@@ -62,7 +62,7 @@ export default class GgbWidget {
     }
   }
 
-  addUpdateListener = (api, name, type, vars = false, aux = false) => {
+  addUpdateListener = (api, name, type, vars = false, logger = true) => {
     // console.log("name:", name, "type:", type)
     const appendVar = (objName = name) => {
       let value = api.getValue(objName)
@@ -80,7 +80,7 @@ export default class GgbWidget {
     }
     let listener = objName => {
       if (vars) appendVar(objName)
-      if (!aux) this.logger(api, name)
+      if (logger) this.logger(api, name)
     }
     api.registerObjectUpdateListener(name, _debounced(250, listener))
     appendVar()
@@ -144,7 +144,7 @@ export default class GgbWidget {
     api.registerClientListener(clientListener)
 
     for (let o of this.config.vars) {
-      this.addUpdateListener(api, o.name, o.type, true, o.aux)
+      this.addUpdateListener(api, o.name, o.type, true, o.logger)
     }
     api.recalculateEnvironments()
   }
@@ -209,13 +209,17 @@ export default class GgbWidget {
   }
 }
 
-var ggbWidget = {
-  scripts: ["https://cdn.geogebra.org/apps/deployggb.js"],
-  links: [],
-  widgetClass: ggbWidget,
+var ggbWidget2 = {
+  scripts: [
+    "https://cdn.geogebra.org/apps/deployggb.js",
+    "/libs/conditional/filtrex.js",
+    "/libs/feedback/feedback_2v1.0.js"
+  ],
+  links: ["/libs/feedback/feedback_2v1.0.css"],
+  widgetClass: GgbWidget2,
   contributesAnswer: true,
   jsonSchema: {
-    title: "GoeGebra widget",
+    title: "GoeGebra widget with feedback",
     description: "Geogebra",
     type: "object",
     properties: {
@@ -244,14 +248,7 @@ var ggbWidget = {
           feedbacks: {
             type: "array",
             title: "feedbacks",
-            description:
-              "Array of arrays for feedback (1-1 correspondance with conditions)"
-          },
-          conditions: {
-            type: "array",
-            title: "conditions",
-            description:
-              "Array of conditions to check which feedback to give (1-1 correspondance with feedbacks)"
+            description: "Array of feedback objects"
           }
         }
       }
@@ -260,67 +257,47 @@ var ggbWidget = {
 
   // prettier-ignore
   jsonSchemaData: {
-		"ggbApplet": {},
-		"vars": [],
-		"feedback": {},
-	},
+			"ggbApplet": {},
+			"vars": [],
+			"feedback": {},
+		},
   // prettier-ignore
   configStructure: {
-		"ggbApplet": {
-      "ggbBase64":"XXX"
-    }, // see https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
-		"vars": [
-      {
-        "name": "Name of geogebra object",
-        "type": "numeric | point | line | segment | polygon | ..."
-    }
-    ],
-		"feedback": {
-      "parameters": {
-        "dismissable": true,  // default
-        "multi": true,        // default
-        "forgetful": false,   // default
-        "random": true        // default
-      },
-      "default": "Default feedback to give when no conditions return true",
-      "feedbacks": [
-        [
-          "feedback A1",
-          "feedback A2"
-        ],
-        [
-          "feedback B1",
-          "feedback B2"
-          // and so on
-        ]
-      ],
-      // Must be in 1-1 correspondans with elements in feedbacks array
-      "conditions":[
-        {
-          "op": "lt | leq | gt | geq | eq | neq | and | or | and | xor | add | sub | mult | div",
-          "a": "First argument (read left to right). Can be of type string | number | boolean",
-          "b": "Second argument to access vars start string with '_', e.g. '_m' or '_Ax'(x-coordinate of point A) "
-        },
-        {
-          "op": "Conditions can be nested",
-          "a": {
-            "op": "and",
-            "a": true,
-            "b": true
+			"ggbApplet": {
+				"ggbBase64":"XXX"
+			}, // see https://wiki.geogebra.org/en/Reference:GeoGebra_App_Parameters
+			"vars": [
+				{
+					"name": "Name of geogebra object",
+					"type": "numeric | point | line | segment | polygon | ..."
+			}
+			],
+			"feedback": {
+				"parameters": {
+          "strict": false,      // degault - if true, it will return first feedback that is true
+					"forgetful": false,   // default - gives feedback regardless of if it is given before
+					"random": true        // default - gives a random feedback string from the set of true conditions
+				},
+				"default": "Default feedback to give when no conditions return true",
+				"feedbacks": [
+					{
+            "condition": "Cy==-1 and m==2",
+            "strings": ["string1", "string2"],
+            "meta": "meta information that is passed on to the answer obj"
           },
-          "b": {
-            "op": "or",
-            "a": {
-              // etc...
-            },
-            "b": {
-              // etc ..
-            }
-          }
-        }
-      ]
-    },
-	}
+          {
+            "condition": " m<0",
+            "strings": [
+              "Hvordan finner man stigningstallet?",
+              "Hva vet du om fortegnet til stigningstallet?",
+              "Kan stigningstallet være negativt?",
+              "Dette er en fryktelig lang tilbakemelding for å teste hvordan det påvirker stilen. Hva skjer med statusfliken? blir den veldig smal?! Hva med linjeskift? <br> Dette er en ny linje, som fortsetter og fortsetter..."
+            ],
+            "meta": "negativ stigning"
+          },
+				],
+			},
+		}
 }
 
 function _debounced(delay, fn) {
