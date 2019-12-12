@@ -1,60 +1,78 @@
+body {
+  background-color: #c3cbdd;
+}
+
+.card {
+  background-color: #fff;
+  max-width: 95%;
+  min-height: 70vh;
+  margin: 3vh auto;
+  border: 1px solid #dbd8de;
+
+  box-shadow: 0.1em 0.1em 0.4em rgba(47, 47, 47, 0.411);
+  border-radius: 0.15em;
+}
+
 .header {
-  grid-area: header;
+  background-color: #fff;
+  max-width: 95%;
+  margin: 3vh auto;
+  border: 1px solid #dbd8de;
+  box-shadow: 0.1em 0.1em 0.4em rgba(47, 47, 47, 0.411);
+  border-radius: 0.15em;
 }
 
-.widget {
-  grid-area: main;
-}
-.answer {
-  grid-area: right;
-  overflow: auto;
-  max-height: 50vh;
-}
-pre {
-  background-color: rgb(230, 231, 224);
-}
-textarea {
-  width: 95%;
-  height: 400px;
-  margin: 4px;
+.header>.content {
+  padding-left: 2rem;
+  padding-bottom: 0.5rem;
 }
 
-.grid-container {
-  display: grid;
-  width: 100%;
-  grid-template-columns: 1fr 40%;
-  grid-template-areas:
-    "header header"
-    "main right";
-  grid-gap: 5px;
-  /* background-color: rgb(228, 228, 228); */
-  padding: 10px;
+.action-wrapper {
+  display: flex;
+  flex-flow: row;
+  align-content: flex-start;
+  align-items: center;
 }
-.grid-container > div {
-  background-color: rgba(255, 255, 255, 1);
-  /* text-align: center; */
-  /* padding: 20px 0; */
-  /* font-size: 30px; */
+
+.box {
+  margin-left: 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  border-radius: 0.15em;
 }
-/* button {
-  padding: 10px 10px;
-  font-size: 12px;
-  text-align: center;
+
+.inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.inputfile+label,
+.input-set-ans {
+  max-width: 80%;
+  padding: 5px 10px;
   cursor: pointer;
-  outline: none;
-  color: #fff;
-  background-color: #4caf50;
-  border: none;
-  border-radius: 5px;
-  box-shadow: 0 6px #999;
+
 }
 
-button:hover {
-  background-color: #3e8e41;
+.inputfile-1+label,
+.input-set-ans {
+  color: #c3cbdd;
+  background-color: #4168c3;
 }
 
-button:active {
-  background-color: #3e8e41;
-  box-shadow: 0 3px #666;
-  transform: translateY(2px);
-} */
+.inputfile+label svg,
+.input-set-ans svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+  margin-top: -0.25em;
+  margin-right: 0.25em;
+}

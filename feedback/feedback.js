@@ -42,7 +42,7 @@ class FeedBack {
 		let defaultConfig = {
 			dismissable: true,
 			multi: true,
-			forgetful: false,
+			forgetful: true,
 			random: true,
 			strict: false,
 			maxCount: null
@@ -50,6 +50,10 @@ class FeedBack {
 
 		this.config = { ...defaultConfig, ...config }
 		this.feedbacks = feedbacks
+		this.feedbacks.forEach(f => {
+			f.check = compileExpression(f.condition)
+		})
+		console.log(this.feedbacks)
 		this.defaultFb = def
 		this.givenFb = []
 		this.vars = vars
@@ -61,21 +65,32 @@ class FeedBack {
 		window.onloadend = this.init()
 	}
 	init() {
+		let eid = document.getElementById(this.eid)
+		eid.classList.add('widget-container')
 		this.container = document.createElement('div')
 		this.container.classList.add('feedback-container')
-		this.container.setAttribute(
-			'style',
-			`max-height: ${document.getElementById(this.eid).clientHeight}px;`
-		)
+		// this.container.setAttribute(
+		// 	'style',
+		// 	`max-height: ${document.getElementById(this.eid).clientHeight}px;`
+		// )
 		this.feedback = document.createElement('div')
 		this.feedback.classList.add('feedback')
-		this.feedback.setAttribute(
-			'style',
-			`height: ${document.getElementById(this.eid).clientHeight - 100}px ;`
-		)
-		let heading = document.createElement('div')
-		heading.classList.add('feedback-heading')
-		heading.innerHTML = '<em>FEEDBACK</em>'
+		// figure
+		let figure = document.createElement('img')
+		figure.classList.add('feedback-helper')
+		// < img src = "image.svg" onerror = "this.onerror=null; this.src='image.png'" >
+		figure.src = './helper.svg'
+		figure.onerror = function() {
+			;(this.onerror = null), (this.src = './helper.svg')
+		}
+
+		// this.feedback.setAttribute(
+		// 	'style',
+		// 	`height: ${document.getElementById(this.eid).clientHeight - 100}px ;`
+		// )
+		// let heading = document.createElement('div')
+		// heading.classList.add('feedback-heading')
+		// heading.innerHTML = '<em>FEEDBACK</em>'
 		let footer = document.createElement('div')
 		footer.classList.add('feedback-footer')
 		this.btn = document.createElement('div')
@@ -83,20 +98,15 @@ class FeedBack {
 		this.btn.innerHTML = 'CHECK'
 		this.btn.onclick = this.checkAns
 		footer.append(this.btn)
-		this.container.append(heading, this.feedback, footer)
+		// this.container.append(heading, this.feedback, footer)
+		this.container.append(this.feedback, figure)
 		document.getElementById(this.eid).append(this.container)
 		document.getElementById(this.eid).classList.add('feedback-grid')
 	}
 	checkAns = event => {
-		// let conds = []
-		// for (let c of this.conditions) {
-		//   let ch = check(c, this.vars)
-		//   conds.push(ch)
-		//   // console.log(`checking condition ${c}, evaluated to ${ch}`)
-		// }
 		let fbs = this.feedbacks
 			.filter(f => {
-				return check(f.condition, this.vars)
+				return f.check(this.vars)
 			})
 			.map(x => {
 				let strings = this.config.forgetful

@@ -45,14 +45,9 @@
 }
 
 .feedback-container {
-	position: relative;
-	vertical-align: top;
-	background-color: #fff !important;
-	width: 400px;
-	margin-left: 20px;
-	/* border-radius: 10px; */
-	box-shadow: 0 0 0 1px #d4d4d5, 0 2px 4px 0 rgba(34, 36, 38, 0.12),
-		0 2px 10px 0 rgba(34, 36, 38, 0.15);
+	position: absolute;
+	bottom: 0;
+	right: 20px;
 }
 
 .widget-box {
@@ -63,6 +58,16 @@
 	box-sizing: border-box;
 	border-radius: 4px;
 	position: relative;
+}
+
+.widget-container {
+	position: relative;
+}
+.feedback-helper {
+	cursor: pointer;
+	position: absolute;
+	bottom: 0;
+	right: -80px;
 }
 
 /* Testing....*/
@@ -170,4 +175,27 @@
 	/* margin-top: 3px; */
 	transform: translateY(3px);
 	box-shadow: 0px 0px 0px 0px #3a3742;
+}
+
+.bubble {
+	position: relative;
+	width: 250px;
+	height: 120px;
+	padding: 3px;
+	background: #ffffff;
+	border-radius: 15px;
+}
+
+.bubble:after {
+	content: '';
+	position: absolute;
+	border-style: solid;
+	border-width: 10px 0 10px 20px;
+	border-color: transparent #ffffff;
+	display: block;
+	width: 0;
+	z-index: 1;
+	margin-top: -10px;
+	right: -20px;
+	top: 25%;
 }
